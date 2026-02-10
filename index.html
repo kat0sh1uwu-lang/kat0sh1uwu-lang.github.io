@@ -126,6 +126,26 @@
             opacity: 0.7;
         }
 
+        .btn-fake-yes {
+            background: linear-gradient(145deg, #ff4081, #ff1744);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-family: 'Comfortaa', cursive;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 25px rgba(255, 64, 129, 0.5);
+            animation: yesGlow 2s ease-in-out infinite;
+        }
+
+        .btn-fake-yes:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 35px rgba(255, 64, 129, 0.7);
+        }
+
         .btn-yes {
             background: linear-gradient(145deg, #ff4081, #ff1744);
             color: white;
@@ -234,23 +254,13 @@
             100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
         }
 
-        .counter {
-            color: rgba(255, 150, 180, 0.6);
-            font-size: 12px;
-            margin-top: 15px;
-        }
-
-        .hint {
+        .message {
             color: #ff6b9d;
-            font-size: 14px;
-            margin-top: 10px;
+            font-size: 15px;
+            margin-top: 15px;
             font-style: italic;
-            opacity: 0;
+            min-height: 25px;
             transition: opacity 0.5s;
-        }
-
-        .hint.visible {
-            opacity: 1;
         }
 
         @media (max-width: 480px) {
@@ -304,12 +314,11 @@
             <div class="question">Ты станешь моей Валентинкой? 🥺</div>
             
             <div class="buttons-container" id="buttonsContainer">
-                <button class="btn-no" onclick="addNoButton()">Нет</button>
-                <button class="btn-no" onclick="addNoButton()">Нет</button>
+                <button class="btn-no" onclick="nextStep()">Нет</button>
+                <button class="btn-no" onclick="nextStep()">Нет</button>
             </div>
 
-            <div class="hint" id="hint"></div>
-            <div class="counter" id="counter"></div>
+            <div class="message" id="message"></div>
         </div>
 
         <div class="yes-page" id="yesPage">
@@ -340,84 +349,114 @@
     <div class="emoji-rain" id="emojiRain"></div>
 
     <script>
-        const noButtonTexts = [
-            "Неа 😤",
-            "Даже не думай!",
-            "Ни за что! 🙅‍♀️",
-            "Попробуй ещё раз 😏",
-            "Хм, дай подумать... НЕТ",
-            "А если я скажу нет? 🤔",
-            "Не сегодня! 😜",
-            "Ты серьёзно? 😂",
-            "Может быть... нет 💅",
-            "Неееет 🙈",
+        let step = 0;
+
+        const steps = [
+            {
+                // Шаг 1: после первого нажатия нет
+                message: "Сонька ну почему ты отвергаешь моё предложение?( 😢",
+                buttons: [
+                    { text: "Нет", type: "no" },
+                    { text: "Нет", type: "no" }
+                ]
+            },
+            {
+                // Шаг 2
+                message: "Сонь ну пожалуйста стань моей валентинкой, почему ты нет нажимаешь 🥺",
+                buttons: [
+                    { text: "Нет", type: "no" }
+                ]
+            },
+            {
+                // Шаг 3
+                message: "Соня стань моей валентинкой, нажми да 💕",
+                buttons: [
+                    { text: "Нет", type: "no" },
+                    { text: "Да", type: "fake-yes" }
+                ]
+            },
+            {
+                // Шаг 4: нажала "да" но оно фейк
+                message: "Ураа эта кнопка да! 🎉",
+                buttons: [
+                    { text: "Да", type: "fake-yes" }
+                ]
+            },
+            {
+                // Шаг 5: вот теперь правда
+                message: "Вот теперь правда кнопка да 😍",
+                buttons: [
+                    { text: "Да", type: "fake-yes" }
+                ]
+            },
+            {
+                // Шаг 6: обманул хихи
+                message: "Обманул хихи 😜",
+                buttons: [
+                    { text: "Нет", type: "no" }
+                ]
+            },
+            {
+                // Шаг 7
+                message: "Ладно вот настоящая кнопка да 👇",
+                buttons: [
+                    { text: "💖 ДА 💖", type: "fake-yes" }
+                ]
+            },
+            {
+                // Шаг 8
+                message: "Эххх это снова обман( ТУТ ТОЧНО ДА! 😅",
+                buttons: [
+                    { text: "💖 ДА ТОЧНО ДА 💖", type: "fake-yes" }
+                ]
+            },
+            {
+                // Шаг 9: финал
+                message: "Станешь валентиночкой моей, Сонька любимка? 🥰💕",
+                buttons: [
+                    { text: "💖 ДА КОНЕЧНО СТАНУ! 💖", type: "real-yes" }
+                ]
+            }
         ];
 
-        const hintTexts = [
-            "",
-            "",
-            "Ну камооон 😏",
-            "",
-            "Подсказка: правильный ответ не 'нет' 💕",
-            "",
-            "Ты точно уверена? 🤨",
-            "",
-            "Осталось совсем чуть чуть... 👀",
-            "Последний шанс сказать нет! 😜",
-        ];
-
-        let clickCount = 0;
-        let currentNoIndex = 0;
-
-        function addNoButton() {
-            clickCount++;
-
+        function nextStep() {
             createSparkles(event);
 
-            const counter = document.getElementById('counter');
-            counter.textContent = `Нажатий "нет": ${clickCount} 💔`;
+            if (step >= steps.length) return;
 
-            const hint = document.getElementById('hint');
-            if (clickCount <= hintTexts.length && hintTexts[clickCount - 1]) {
-                hint.textContent = hintTexts[clickCount - 1];
-                hint.classList.add('visible');
-            }
-
-            if (event && event.target) {
-                event.target.style.fontSize = '12px';
-                event.target.style.padding = '8px 16px';
-                event.target.style.opacity = '0.5';
-                event.target.disabled = true;
-            }
-
+            const currentStep = steps[step];
             const container = document.getElementById('buttonsContainer');
+            const message = document.getElementById('message');
 
-            // После 10 нажатий показываем кнопку ДА
-            if (clickCount >= 10) {
-                // Убираем все кнопки нет
-                container.innerHTML = '';
+            // Обновляем сообщение
+            message.textContent = currentStep.message;
 
-                const yesBtn = document.createElement('button');
-                yesBtn.className = 'btn-yes btn-appear';
-                yesBtn.textContent = '💖 ДА КОНЕЧНО СТАНУ! 💖';
-                yesBtn.onclick = showYesPage;
-                container.appendChild(yesBtn);
+            // Очищаем кнопки
+            container.innerHTML = '';
 
-                hint.textContent = 'Вот видишь, другого варианта и не было 😘';
-                hint.classList.add('visible');
+            // Создаём новые кнопки
+            currentStep.buttons.forEach(btn => {
+                const button = document.createElement('button');
+                button.className = 'btn-appear';
 
-                return;
-            }
+                if (btn.type === 'no') {
+                    button.className += ' btn-no';
+                    button.textContent = btn.text;
+                    button.onclick = function() { step++; nextStep(); };
+                } else if (btn.type === 'fake-yes') {
+                    button.className += ' btn-fake-yes';
+                    button.textContent = btn.text;
+                    button.onclick = function() { step++; nextStep(); };
+                } else if (btn.type === 'real-yes') {
+                    button.className += ' btn-yes';
+                    button.textContent = btn.text;
+                    button.onclick = showYesPage;
+                }
 
-            // Добавляем новую кнопку нет
-            if (currentNoIndex < noButtonTexts.length) {
-                const newBtn = document.createElement('button');
-                newBtn.className = 'btn-no btn-appear';
-                newBtn.textContent = noButtonTexts[currentNoIndex];
-                newBtn.onclick = function() { addNoButton(); };
-                container.appendChild(newBtn);
-                currentNoIndex++;
-            }
+                container.appendChild(button);
+            });
+
+            step++;
         }
 
         function createSparkles(e) {
@@ -434,6 +473,7 @@
         }
 
         function showYesPage() {
+            createSparkles(event);
             document.getElementById('questionCard').style.display = 'none';
             
             const yesPage = document.getElementById('yesPage');
