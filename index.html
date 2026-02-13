@@ -25,7 +25,6 @@
             position: relative;
         }
 
-        /* Фон с тюльпанами для открытки */
         .tulip-bg {
             display: none;
             position: fixed;
@@ -76,7 +75,6 @@
             100% { transform: translateY(100vh) rotate(360deg) scale(0.6); opacity: 0; }
         }
 
-        /* Светящиеся частицы */
         .particle {
             position: fixed;
             width: 3px;
@@ -147,7 +145,6 @@
             }
         }
 
-        /* Открыточная карточка */
         .card-letter {
             background: linear-gradient(145deg, 
                 rgba(255, 255, 255, 0.12), 
@@ -258,7 +255,6 @@
         .btn-no:hover {
             transform: scale(0.95);
             opacity: 0.7;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .btn-no:active {
@@ -282,17 +278,6 @@
             animation: yesGlow 2s ease-in-out infinite;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn-fake-yes::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 60%);
-            pointer-events: none;
         }
 
         .btn-fake-yes:hover {
@@ -320,26 +305,6 @@
             letter-spacing: 2px;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn-yes::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #ff4081, #ff6b9d, #ff1744, #ff4081);
-            border-radius: 52px;
-            z-index: -1;
-            animation: borderRotate 3s linear infinite;
-            background-size: 300% 300%;
-        }
-
-        @keyframes borderRotate {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         .btn-yes:hover {
@@ -391,8 +356,7 @@
             margin-bottom: 30px;
             text-shadow: 
                 0 0 30px rgba(255, 64, 129, 0.6),
-                0 0 60px rgba(255, 64, 129, 0.3),
-                0 0 90px rgba(255, 64, 129, 0.1);
+                0 0 60px rgba(255, 64, 129, 0.3);
             animation: celebrateTitle 1s ease-in-out infinite alternate;
         }
 
@@ -413,8 +377,6 @@
 
         .love-text p {
             margin-bottom: 18px;
-            position: relative;
-            padding-left: 5px;
         }
 
         .signature {
@@ -495,9 +457,6 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: 200;
-        }
-
-        .sparkle-star {
             animation: sparkleStarAnim 0.8s ease-out forwards;
         }
 
@@ -507,7 +466,6 @@
             100% { transform: scale(0) rotate(360deg); opacity: 0; }
         }
 
-        /* Декоративные элементы */
         .deco-circle {
             position: fixed;
             border-radius: 50%;
@@ -522,36 +480,20 @@
             50% { transform: translate(20px, -30px) scale(1.1); opacity: 0.5; }
         }
 
-        /* Разделитель */
         .divider {
             width: 60%;
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255, 100, 150, 0.4), transparent);
             margin: 25px auto;
         }
-
-        /* Scroll indicator */
-        .scroll-hint {
-            color: rgba(255, 150, 180, 0.5);
-            font-size: 12px;
-            margin-top: 20px;
-            animation: scrollBounce 2s ease-in-out infinite;
-        }
-
-        @keyframes scrollBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(5px); }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Декоративные круги -->
     <div class="deco-circle" style="width:300px;height:300px;top:10%;left:-5%;animation-delay:0s;"></div>
     <div class="deco-circle" style="width:200px;height:200px;top:60%;right:-3%;animation-delay:2s;"></div>
     <div class="deco-circle" style="width:150px;height:150px;bottom:10%;left:20%;animation-delay:4s;"></div>
 
-    <!-- Фон тюльпанов для открытки -->
     <div class="tulip-bg" id="tulipBg"></div>
 
     <div class="hearts-bg" id="heartsBg"></div>
@@ -562,8 +504,8 @@
             <div class="question">Ты станешь моей Валентинкой? 🥺</div>
             
             <div class="buttons-container" id="buttonsContainer">
-                <button class="btn-no" onclick="nextStep()">Нет</button>
-                <button class="btn-no" onclick="nextStep()">Нет</button>
+                <button class="btn-no" onclick="handleClick('no')">Нет</button>
+                <button class="btn-no" onclick="handleClick('no')">Нет</button>
             </div>
 
             <div class="message" id="message"></div>
@@ -601,9 +543,10 @@
     <div class="emoji-rain" id="emojiRain"></div>
 
     <script>
-        let step = 0;
+        let currentStep = 0;
 
         const steps = [
+            // Шаг 0: начальные 2 кнопки нет (уже на странице)
             {
                 message: "Сонька ну почему ты отвергаешь моё предложение?( 😢",
                 buttons: [
@@ -647,19 +590,19 @@
                 message: "Соня стань моей валентинкой, нажми да 💕",
                 buttons: [
                     { text: "Нет", type: "no" },
-                    { text: "Да", type: "fake-yes" }
+                    { text: "Да", type: "fake" }
                 ]
             },
             {
                 message: "Ураа эта кнопка да! 🎉",
                 buttons: [
-                    { text: "Да", type: "fake-yes" }
+                    { text: "Да", type: "fake" }
                 ]
             },
             {
                 message: "Вот теперь правда кнопка да 😍",
                 buttons: [
-                    { text: "Да", type: "fake-yes" }
+                    { text: "Да", type: "fake" }
                 ]
             },
             {
@@ -688,37 +631,36 @@
             {
                 message: "Ладно вот настоящая кнопка да 👇",
                 buttons: [
-                    { text: "💖 ДА 💖", type: "fake-yes" }
+                    { text: "💖 ДА 💖", type: "fake" }
                 ]
             },
             {
                 message: "Эххх это снова обман( ТУТ ТОЧНО ДА! 😅",
                 buttons: [
-                    { text: "💖 ДА ТОЧНО ДА 💖", type: "fake-yes" }
+                    { text: "💖 ДА ТОЧНО ДА 💖", type: "fake" }
                 ]
             },
             {
                 message: "Станешь валентиночкой моей, Сонька любимка? 🥰💕",
                 buttons: [
-                    { text: "💖 ДА КОНЕЧНО СТАНУ! 💖", type: "real-yes" }
+                    { text: "💖 ДА КОНЕЧНО СТАНУ! 💖", type: "real" }
                 ]
             }
         ];
 
-        function nextStep() {
+        function handleClick(type) {
             createSparkles(event);
 
-            if (step >= steps.length) return;
+            if (currentStep >= steps.length) return;
 
-            const currentStep = steps[step];
+            const stepData = steps[currentStep];
             const container = document.getElementById('buttonsContainer');
             const message = document.getElementById('message');
 
-            message.textContent = currentStep.message;
-
+            message.textContent = stepData.message;
             container.innerHTML = '';
 
-            currentStep.buttons.forEach((btn, index) => {
+            stepData.buttons.forEach(function(btn, index) {
                 const button = document.createElement('button');
                 button.className = 'btn-appear';
                 button.style.animationDelay = (index * 0.1) + 's';
@@ -726,51 +668,63 @@
                 if (btn.type === 'no') {
                     button.className += ' btn-no';
                     button.textContent = btn.text;
-                    button.onclick = function(e) { createSparkles(e); step++; nextStep(); };
-                } else if (btn.type === 'fake-yes') {
+                    button.addEventListener('click', function(e) {
+                        createSparkles(e);
+                        currentStep++;
+                        handleClick('no');
+                    });
+                } else if (btn.type === 'fake') {
                     button.className += ' btn-fake-yes';
                     button.textContent = btn.text;
-                    button.onclick = function(e) { createSparkles(e); step++; nextStep(); };
-                } else if (btn.type === 'real-yes') {
+                    button.addEventListener('click', function(e) {
+                        createSparkles(e);
+                        currentStep++;
+                        handleClick('fake');
+                    });
+                } else if (btn.type === 'real') {
                     button.className += ' btn-yes';
                     button.textContent = btn.text;
-                    button.onclick = function(e) { createSparkles(e); showYesPage(); };
+                    button.addEventListener('click', function(e) {
+                        createSparkles(e);
+                        showYesPage();
+                    });
                 }
 
                 container.appendChild(button);
             });
 
-            step++;
+            currentStep++;
         }
 
         function createSparkles(e) {
             if (!e) return;
-            const colors = ['#ff4081', '#ff6b9d', '#ffb3d1', '#ff1744', '#ff80ab', '#fff'];
-            for (let i = 0; i < 10; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle sparkle-star';
-                const angle = (Math.PI * 2 * i) / 10;
-                const distance = 20 + Math.random() * 30;
-                const x = e.clientX + Math.cos(angle) * distance;
-                const y = e.clientY + Math.sin(angle) * distance;
+            var colors = ['#ff4081', '#ff6b9d', '#ffb3d1', '#ff1744', '#ff80ab', '#fff'];
+            for (var i = 0; i < 10; i++) {
+                var sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                var angle = (Math.PI * 2 * i) / 10;
+                var distance = 20 + Math.random() * 30;
+                var x = e.clientX + Math.cos(angle) * distance;
+                var y = e.clientY + Math.sin(angle) * distance;
                 sparkle.style.left = x + 'px';
                 sparkle.style.top = y + 'px';
                 sparkle.style.width = (3 + Math.random() * 5) + 'px';
                 sparkle.style.height = sparkle.style.width;
-                sparkle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]}, transparent)`;
-                sparkle.style.boxShadow = `0 0 6px ${colors[Math.floor(Math.random() * colors.length)]}`;
+                var color = colors[Math.floor(Math.random() * colors.length)];
+                sparkle.style.background = 'radial-gradient(circle, ' + color + ', transparent)';
+                sparkle.style.boxShadow = '0 0 6px ' + color;
                 document.body.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 800);
+                (function(el) {
+                    setTimeout(function() { el.remove(); }, 800);
+                })(sparkle);
             }
         }
 
         function showYesPage() {
             document.getElementById('questionCard').style.display = 'none';
-            
-            // Активируем фон с тюльпанами
             document.getElementById('tulipBg').classList.add('active');
 
-            const yesPage = document.getElementById('yesPage');
+            var yesPage = document.getElementById('yesPage');
             yesPage.classList.add('active');
 
             generateHeartsWave('heartsWave');
@@ -778,16 +732,18 @@
 
             launchConfetti();
 
-            for (let i = 0; i < 40; i++) {
-                setTimeout(() => createFallingHeart(), i * 80);
+            for (var i = 0; i < 40; i++) {
+                (function(idx) {
+                    setTimeout(function() { createFallingHeart(); }, idx * 80);
+                })(i);
             }
         }
 
         function generateHeartsWave(containerId) {
-            const container = document.getElementById(containerId);
-            const hearts = ['💕', '💖', '💗', '💘', '💝', '❤️', '💞', '💓', '💕', '🌷', '💕'];
-            hearts.forEach((heart, i) => {
-                const span = document.createElement('span');
+            var container = document.getElementById(containerId);
+            var hearts = ['💕', '💖', '💗', '💘', '💝', '❤️', '💞', '💓', '💕', '🌷', '💕'];
+            hearts.forEach(function(heart, i) {
+                var span = document.createElement('span');
                 span.textContent = heart;
                 span.style.animationDelay = (i * 0.15) + 's';
                 container.appendChild(span);
@@ -795,42 +751,46 @@
         }
 
         function launchConfetti() {
-            const emojis = ['💖', '💕', '❤️', '💗', '🎉', '✨', '💘', '🥰', '💝', '🌹', '💐', '🎊', '🌷', '🦋'];
-            const container = document.getElementById('emojiRain');
+            var emojis = ['💖', '💕', '❤️', '💗', '🎉', '✨', '💘', '🥰', '💝', '🌹', '💐', '🎊', '🌷', '🦋'];
+            var container = document.getElementById('emojiRain');
             
-            for (let i = 0; i < 80; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.fontSize = (18 + Math.random() * 28) + 'px';
-                    confetti.style.animationDuration = (2.5 + Math.random() * 3.5) + 's';
-                    container.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 6000);
-                }, i * 70);
-            }
-
-            setTimeout(() => {
-                for (let i = 0; i < 40; i++) {
-                    setTimeout(() => {
-                        const confetti = document.createElement('div');
+            for (var i = 0; i < 80; i++) {
+                (function(idx) {
+                    setTimeout(function() {
+                        var confetti = document.createElement('div');
                         confetti.className = 'confetti';
                         confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
                         confetti.style.left = Math.random() * 100 + 'vw';
-                        confetti.style.fontSize = (18 + Math.random() * 22) + 'px';
-                        confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+                        confetti.style.fontSize = (18 + Math.random() * 28) + 'px';
+                        confetti.style.animationDuration = (2.5 + Math.random() * 3.5) + 's';
                         container.appendChild(confetti);
-                        setTimeout(() => confetti.remove(), 5000);
-                    }, i * 120);
+                        setTimeout(function() { confetti.remove(); }, 6000);
+                    }, idx * 70);
+                })(i);
+            }
+
+            setTimeout(function() {
+                for (var i = 0; i < 40; i++) {
+                    (function(idx) {
+                        setTimeout(function() {
+                            var confetti = document.createElement('div');
+                            confetti.className = 'confetti';
+                            confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                            confetti.style.left = Math.random() * 100 + 'vw';
+                            confetti.style.fontSize = (18 + Math.random() * 22) + 'px';
+                            confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+                            container.appendChild(confetti);
+                            setTimeout(function() { confetti.remove(); }, 5000);
+                        }, idx * 120);
+                    })(i);
                 }
             }, 4000);
         }
 
         function createFallingHeart() {
-            const container = document.getElementById('heartsBg');
-            const hearts = ['❤️', '💕', '💖', '💗', '💓', '♥️', '🌷'];
-            const heart = document.createElement('div');
+            var container = document.getElementById('heartsBg');
+            var hearts = ['❤️', '💕', '💖', '💗', '💓', '♥️', '🌷'];
+            var heart = document.createElement('div');
             heart.className = 'floating-heart';
             heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
             heart.style.left = Math.random() * 100 + '%';
@@ -838,11 +798,11 @@
             heart.style.animationDuration = (4 + Math.random() * 7) + 's';
             heart.style.animationDelay = Math.random() * 2 + 's';
             container.appendChild(heart);
-            setTimeout(() => heart.remove(), 13000);
+            setTimeout(function() { heart.remove(); }, 13000);
         }
 
         function createParticle() {
-            const particle = document.createElement('div');
+            var particle = document.createElement('div');
             particle.className = 'particle';
             particle.style.left = Math.random() * 100 + 'vw';
             particle.style.animationDuration = (5 + Math.random() * 8) + 's';
@@ -850,21 +810,25 @@
             particle.style.width = (2 + Math.random() * 4) + 'px';
             particle.style.height = particle.style.width;
             document.body.appendChild(particle);
-            setTimeout(() => particle.remove(), 15000);
+            setTimeout(function() { particle.remove(); }, 15000);
         }
 
         function initBackgroundHearts() {
-            for (let i = 0; i < 12; i++) {
-                setTimeout(() => createFallingHeart(), i * 600);
+            for (var i = 0; i < 12; i++) {
+                (function(idx) {
+                    setTimeout(function() { createFallingHeart(); }, idx * 600);
+                })(i);
             }
-            setInterval(() => createFallingHeart(), 900);
+            setInterval(function() { createFallingHeart(); }, 900);
         }
 
         function initParticles() {
-            for (let i = 0; i < 20; i++) {
-                setTimeout(() => createParticle(), i * 400);
+            for (var i = 0; i < 20; i++) {
+                (function(idx) {
+                    setTimeout(function() { createParticle(); }, idx * 400);
+                })(i);
             }
-            setInterval(() => createParticle(), 600);
+            setInterval(function() { createParticle(); }, 600);
         }
 
         initBackgroundHearts();
